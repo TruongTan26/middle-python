@@ -1,21 +1,27 @@
-from tkinter import *
+import tkinter as tk       
+import threading
 
-m1 = PanedWindow()
-m1.pack()
+class Application(tk.Frame):              
+    def __init__(self, master=None):
+        tk.Frame.__init__(self, master)   
+        self.grid()                       
+        self.createWidgets()
 
-r = Tk()
-btn_menu = Button(r, text="Menu", width=25)
-lbl = Label(m1, text="test", width=100, height=100)
-m1.add(lbl)
-m1.add(r)
+    def printHello(self):
+        print("Hello")
 
-# m2 = PanedWindow(m1, orient=VERTICAL)
-# m1.add(m2)
+    def createWidgets(self):
+        self.quitButton = tk.Button(self, text='Quit',
+            command=self.quit) # exits background (gui) thread
+        self.quitButton.grid(row=1,column=0)    
+        self.printButton = tk.Button(self, text='Print',command=lambda: self.printHello())         
+        self.printButton.grid(row=1,column=1) 
 
-# top = Scale( m2, orient=HORIZONTAL)
-# m2.add(top)
-
-# bottom = Button(m2, text="OK")
-# m2.add(bottom)
-
-mainloop()
+def runtk():  # runs in background thread
+    app = Application()                        
+    app.master.title('Sample application')     
+    app.mainloop()
+    
+thd = threading.Thread(target=runtk)   # gui thread
+# thd.daemon = True  # background thread will exit if main thread exits
+thd.start()  # start tk loop

@@ -1,11 +1,11 @@
 from tkinter import *
 import tkinter as tk
+from data import *
 
 def clearFrame(r):
     # destroy all widgets from frame
     for widget in r.winfo_children():
        widget.destroy()
-    
     # this will clear frame and frame will be empty
     # if you want to hide the empty panel then
     r.pack_forget()
@@ -31,10 +31,21 @@ def test(txt, r):
     print(res)
 
 def menu_services(r):
-    storeDic = {1:"Cà phê", 2:"Sting vàng", 3:"Sting dâu", 4:"Bò cụng"}
-    for k,v in storeDic.items():
-        lbl1 = Button(r, text=v, width=25)
-        lbl1.pack(side=TOP)
+    ldrink = Label(r, text="Đồ uống")
+    ldrink.grid(row=0,column=1)
+    for k,v in storeDicDrink.items():
+        lbl1 = Button(r, text=v, width=24, height=5)
+        lbl1.grid(row=1, column=k, pady=10)
+    lfastfood = Label(r, text="Đồ ăn nhanh")
+    lfastfood.grid(row=2,column=1)
+    for k,v in storeDicFastFood.items():
+        lbl1 = Button(r, text=v, width=24, height=5)
+        lbl1.grid(row=3, column=k, pady=10)
+    lordermore = Label(r, text="Gọi thêm")
+    lordermore.grid(row=4,column=1)
+    for k,v in storeDicOrderMore.items():
+        lbl1 = Button(r, text=v, width=24, height=5)
+        lbl1.grid(row=5, column=k, pady=10)
 
 def chat_services(r):
     # lbl = Label(r, text="Nhap ten cua ban", width=25)
@@ -125,6 +136,7 @@ def windows_services():
     toolbar.pack(side="top", fill="x")
     main.pack(side="top", fill="both", expand=True)
     main.pack_propagate(False) # ngan khung tu dong co lai
+    main.grid_propagate(False) # ngan khung tu dong co lai
     # bottom.pack(side="top", fill="both", expand=False)
     
     lbl = Button(toolbar, text="Menu", width=32, command=lambda: funcBtn("menu",main))

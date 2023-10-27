@@ -5,7 +5,7 @@ from matplotlib.patches import Rectangle
 from tkinter import messagebox
 from tkinter import *
 from windows_services import *
-
+from server import *
 
 # def btnMenu():
 #     print('Menu')
