@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Realtime Chat</title>
+</head>
+<body>
+    <ul id="messages"></ul>
+    <input id="message_input" autocomplete="off" /><button onclick="sendMessage()">Send</button>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('message', function(data) {
+            var ul = document.getElementById('messages');
+            var li = document.createElement('li');
+            li.appendChild(document.createTextNode(data.sender + ": " + data.message));
+            ul.appendChild(li);
+        });
+
+        function sendMessage() {
+            var message_input = document.getElementById('message_input');
+            var sender = "User";  // Thay đổi thành tên người dùng hoặc ID của bạn
+            var message = message_input.value;
+            socket.emit('message', { sender: sender, message: message });
+            message_input.value = '';
+        }
+    </script>
+</body>
+</html>
