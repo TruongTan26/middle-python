@@ -9,7 +9,8 @@ class ChatServer:
 
     last_received_message = ""
 
-    def __init__(self):
+    def __init__(self, kill=False):
+        self.kill = kill
         self.server_socket = None
         self.create_listening_server()
     #listen for incoming connection
@@ -24,7 +25,7 @@ class ChatServer:
         self.server_socket.bind((local_ip, local_port))
         print("Listening for incoming messages..")
         self.server_socket.listen(5) #listen for incomming connections / max 5 clients
-        self.receive_messages_in_a_new_thread()
+        # self.receive_messages_in_a_new_thread()
     #fun to receive new msgs
     def receive_messages(self, so):
         while True:
@@ -46,8 +47,13 @@ class ChatServer:
             client = so, (ip, port) = self.server_socket.accept()
             self.add_to_clients_list(client)
             print('Connected to ', ip, ':', str(port))
-            t = threading.Thread(target=self.receive_messages, args=(so,))
-            t.start()
+            if not self.kill:
+                t = threading.Thread(target=self.receive_messages, args=(so,))
+                t.start()
+            else:
+                break
+
+
     #add a new client 
     def add_to_clients_list(self, client):
         if client not in self.clients_list:

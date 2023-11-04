@@ -29,7 +29,7 @@ class GUI:
         self.root.resizable(0, 0)
         self.display_name_section()
         self.display_chat_entry_box()
-        self.display_chat_box()
+        # self.display_chat_box()
         
         
     
@@ -63,16 +63,16 @@ class GUI:
         self.join_button = Button(frame, text="Join", width=10, command=self.on_join).pack(side='right',padx=5, pady=15)
         frame.pack(side='top', anchor='nw')
 
-    def display_chat_box(self):
-        frame = Frame()
-        Label(frame, text='Chat Box', font=("arial", 12,"bold")).pack(side='top', padx=270)
-        self.chat_transcript_area = Text(frame, width=60, height=10, font=("arial", 12))
-        scrollbar = Scrollbar(frame, command=self.chat_transcript_area.yview, orient=VERTICAL)
-        self.chat_transcript_area.config(yscrollcommand=scrollbar.set)
-        self.chat_transcript_area.bind('<KeyPress>', lambda e: 'break')
-        self.chat_transcript_area.pack(side='left', padx=15, pady=10)
-        scrollbar.pack(side='right', fill='y',padx=1)
-        frame.pack(side='left')
+    # def display_chat_box(self):
+    #     frame = Frame()
+    #     Label(frame, text='Chat Box', font=("arial", 12,"bold")).pack(side='top', padx=270)
+    #     self.chat_transcript_area = Text(frame, width=60, height=10, font=("arial", 12))
+    #     scrollbar = Scrollbar(frame, command=self.chat_transcript_area.yview, orient=VERTICAL)
+    #     self.chat_transcript_area.config(yscrollcommand=scrollbar.set)
+    #     self.chat_transcript_area.bind('<KeyPress>', lambda e: 'break')
+    #     self.chat_transcript_area.pack(side='left', padx=15, pady=10)
+    #     scrollbar.pack(side='right', fill='y',padx=1)
+    #     frame.pack(side='left')
 
     def display_chat_entry_box(self):   
         frame = Frame()

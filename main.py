@@ -8,6 +8,8 @@
 from server import *
 import threading
 from application import Application
+import time
+import sys
 
 # def open_new_window():
 #     windows_services()
@@ -60,21 +62,30 @@ def runGUI():
     app.title("App1")
     app.mainloop()
 
-def runGUI1():
-    app1 = Application()
-    app1.geometry("1000x500")
-    app1.title("App2")
-    app1.mainloop()
 
-def runChatServer():
-    ChatServer()
+def runChatServer(kill):
+    ChatServer(kill)
 
-threadmain1 = threading.Thread(target=runGUI1)
-threadmain1 = threading.Thread(target=runChatServer)
-threadmain = threading.Thread(target=runGUI)
-# threadmain.daemon = True
-threadmain1.start()
-threadmain.start()
-# threading.Thread(target=ChatServer, args=())
 
-# root.mainloop()
+def KillThread(t1):
+    chatServer = threading.Thread(target=lambda: runChatServer(False))
+    chatServer.start()
+    while t1.is_alive():
+        time.sleep(1)
+        if t1.is_alive() == False:
+            chatServer = threading.Thread(target=lambda: runChatServer(True))
+            chatServer.start()
+            chatServer.join(0)
+            print("Dit me may in ra di lam on")
+    
+
+stop_thread = threading.Event()
+
+GUI = threading.Thread(target=runGUI)
+GUI.start()
+
+checkThread = threading.Thread(target=lambda: KillThread(GUI))
+checkThread.start()
+
+checkThread.join(0)
+sys.exit()

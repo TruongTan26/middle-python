@@ -57,4 +57,7 @@ class Application(tk.Tk):
                 break
     
     def open_new_window(self):
-        windows_services()
+        app = Windows_Services()
+        app.title("Cửa sổ giao dịch bàn ...")
+        app.geometry("700x500")
+        # windows_services()
