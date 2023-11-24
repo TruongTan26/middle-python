@@ -3,6 +3,8 @@ import tkinter as tk
 from data import *
 
 class Windows_Services(tk.Tk):
+    listProduct = dict()
+    total = 0
     def __init__(self):
         super().__init__()
         self.frame = Frame(self)
@@ -45,8 +47,9 @@ class Windows_Services(tk.Tk):
                 # chat_services(r)
                 print("Chat")
             case "bill":
-                lbl = Label(r, text="Thanh toan", width=25)
-                lbl.pack()
+                # lbl = Label(r, text="Thanh toan", width=25)
+                # lbl.pack()
+                self.bill(r)
     
 
     def clearFrame(self, r):
@@ -56,6 +59,30 @@ class Windows_Services(tk.Tk):
         # this will clear frame and frame will be empty
         # if you want to hide the empty panel then
         r.pack_forget()
+    @classmethod
+    def totalproduct(cls, name, price, typeofFood):
+        # total = 0
+        convert = {
+            "price": price,
+            "total": 0
+        }
+        if name in cls.listProduct:
+            total = cls.listProduct[name]["total"]
+            print(cls.listProduct[name])
+            total+=1
+            convert["total"] = total
+            cls.listProduct.__setitem__(name,convert)
+        else:
+            cls.listProduct.__setitem__(name,convert)
+            
+        # cls.listProduct.append({name, price, typeofFood})
+        print(cls.listProduct)
+        # cls.total += 1
+        # print(cls.total)
+        # print(*args.name, *args.price)
+        print(name, price, typeofFood)
+
+        # print(btn)
 
 
 
@@ -67,7 +94,10 @@ class Windows_Services(tk.Tk):
         ldrink = Label(r, text="Đồ uống")
         ldrink.grid(row=0,column=1)
         for k,v in storeDicDrink.items():
-            lbl1 = Button(r, text=v, width=24, height=5)
+            name = v["name"]
+            price = v["price"]
+            typeofFood = v["type"]
+            lbl1 = Button(r, text=f'{v["name"]}\n {v["price"]}', width=24, height=5, command=lambda name=name, price=price, typeofFood=typeofFood: self.totalproduct(name, price, typeofFood))
             lbl1.grid(row=1, column=k, pady=10)
         lfastfood = Label(r, text="Đồ ăn nhanh")
         lfastfood.grid(row=2,column=1)
@@ -79,7 +109,16 @@ class Windows_Services(tk.Tk):
         for k,v in storeDicOrderMore.items():
             lbl1 = Button(r, text=v, width=24, height=5)
             lbl1.grid(row=5, column=k, pady=10)
-
+    def bill(self, r):
+        ldrink = Label(r, text="Đồ uống")
+        ldrink.grid(row=0,column=1)
+        for k,v in storeDicDrink.items():
+            ldrink = Label(r, text=v)
+            ldrink.grid(row=k,column=1)
+            # lbl1 = Button(r, text=v width=24, height=5)
+            # lbl1.grid(row=1, column=k, pady=10)
+        print(self.total)
+    
 
 
 

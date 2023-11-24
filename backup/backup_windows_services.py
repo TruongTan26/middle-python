@@ -1,5 +1,10 @@
 from tkinter import *
 import tkinter as tk
+# import sys
+# sys.path.insert(0, '/Desktop')
+# from .middle-python.Desktop.data import *
+import sys
+sys.path.append("Desktop")
 from data import *
 
 
