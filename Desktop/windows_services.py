@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter as tk
 from data import *
+from db import *
 
 class Windows_Services(tk.Tk):
     listProduct = dict()
@@ -18,6 +19,9 @@ class Windows_Services(tk.Tk):
         self.main.pack_propagate(False)
 
         self.createButton()
+
+        self.mydb = connect_db()
+        self.mycursor = create_cursor(self.mydb)
     
     def createButton(self):
         lbl = Button(self.toolbar, text="Menu", width=32, command=lambda: self.funcBtn("menu",self.main))
@@ -44,7 +48,7 @@ class Windows_Services(tk.Tk):
                 self.menu_services(r)
                 print("Menu")
             case "chat":
-                # chat_services(r)
+                self.chat_services(r)
                 print("Chat")
             case "bill":
                 # lbl = Label(r, text="Thanh toan", width=25)
@@ -118,6 +122,46 @@ class Windows_Services(tk.Tk):
             # lbl1 = Button(r, text=v width=24, height=5)
             # lbl1.grid(row=1, column=k, pady=10)
         print(self.total)
+
+    def chat_services(self, r):
+        self.output_text = tk.Text(r, height=20, width=50)
+        self.output_text.pack()
+
+        scrollbar = tk.Scrollbar(r, command=self.output_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.output_text.config(yscrollcommand=scrollbar.set)
+
+        input_frame = tk.Frame(r)
+        input_frame.pack(side=tk.BOTTOM)
+
+        self.input_entry = tk.Entry(input_frame, width=40)
+        self.input_entry.pack(side=tk.LEFT)
+
+        send_button = tk.Button(input_frame, text="Gửi", command=self.send_message)
+        send_button.pack(side=tk.LEFT)
+
+        self.input_entry.bind("<Return>", lambda event: self.send_message())
+
+    def send_message(self):
+        user_input = self.input_entry.get()
+        self.output_text.insert(tk.END, "You: " + user_input + "\n")
+
+        self.mycursor.execute("SELECT bot_response FROM bot_chat WHERE user_input = %s", (user_input,))
+        result = self.mycursor.fetchone()
+
+        if result:
+            bot_response = result[0]
+            self.output_text.insert(tk.END, "Bot: Typing...\n")
+            self.after(2000, lambda: self.show_response(bot_response))
+        else:
+            self.output_text.insert(tk.END, "\nBot: Phản hồi mặc định\n")
+
+        self.input_entry.delete(0, tk.END)
+        self.output_text.see(tk.END)
+
+    def show_response(self, response):
+        self.output_text.insert(tk.END, "Bot: " + response + "\n")
+        self.output_text.see(tk.END)
     
 
 
