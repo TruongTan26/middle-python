@@ -33,7 +33,7 @@ from windows_services import *
 
 list = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
 a = len(list)
-print(a)
+# print(a)
 length = 500//a 
 ws = Tk()
 ws.geometry("500x500")
@@ -42,9 +42,9 @@ ws.geometry("500x500")
 #     print("test click")
 
 def open_new_window(test):
-        print(test)
+        # print(test)
         app = Windows_Services()
-        app.title(f'Cửa sổ giao dị  ch bàn {test}')
+        app.title(f'Cửa sổ giao dịch bàn {test}')
         app.geometry("700x500")
 
 canvas = Canvas(ws, width=500, height=500, bg="#7698A6")

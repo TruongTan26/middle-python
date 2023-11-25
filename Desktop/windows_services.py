@@ -14,6 +14,7 @@ class Windows_Services(tk.Tk):
         self.main = Frame(self, width=700, height=500, bg="red")
 
         self.toolbar.pack(side="top", fill="x")
+        
         self.main.pack(side="top", fill="both", expand=True)
         self.main.pack_propagate(False)
 
@@ -42,7 +43,7 @@ class Windows_Services(tk.Tk):
                 # lbl = Label(r, text="Menu", width=25)
                 # lbl.pack()
                 self.menu_services(r)
-                print("Menu")
+                # print("Menu")
             case "chat":
                 # chat_services(r)
                 print("Chat")
@@ -68,7 +69,7 @@ class Windows_Services(tk.Tk):
         }
         if name in cls.listProduct:
             total = cls.listProduct[name]["total"]
-            print(cls.listProduct[name])
+            # print(cls.listProduct[name])
             total+=1
             convert["total"] = total
             cls.listProduct.__setitem__(name,convert)
@@ -80,13 +81,18 @@ class Windows_Services(tk.Tk):
         # cls.total += 1
         # print(cls.total)
         # print(*args.name, *args.price)
-        print(name, price, typeofFood)
+        # print(name, price, typeofFood)
 
         # print(btn)
 
 
 
     def menu_services(self, r):
+        scrollbar = Scrollbar(r, orient="vertical")
+        scrollbar.grid(row=1, column=2,  sticky='w')
+        
+        # scrollbar.grid(row=0, column=1, sticky=NS)
+        scrollbar.pack(side="right", fill="y")
         # storeDic = {1:"Cà phê", 2:"Sting vàng", 3:"Sting dâu", 4:"Bò cụng"}
         # for k,v in storeDic.items():
         #     lbl1 = Button(r, text=v, width=25)
@@ -98,17 +104,46 @@ class Windows_Services(tk.Tk):
             price = v["price"]
             typeofFood = v["type"]
             lbl1 = Button(r, text=f'{v["name"]}\n {v["price"]}', width=24, height=5, command=lambda name=name, price=price, typeofFood=typeofFood: self.totalproduct(name, price, typeofFood))
-            lbl1.grid(row=1, column=k, pady=10)
+            if k >= 5:
+                if k%4 == 0:
+                    lbl1.grid(row=k//4, column=4, pady=10)
+                    # print(k//4)
+                else:
+                    lbl1.grid(row=k//4+1, column=k%4, pady=10)
+            else:
+                lbl1.grid(row=1, column=k, pady=10)
+        
+        
         lfastfood = Label(r, text="Đồ ăn nhanh")
-        lfastfood.grid(row=2,column=1)
+        lfastfood.grid(row=len(storeDicDrink)//4+1,column=1)
+        # print(len(storeDicDrink)//4+1)
         for k,v in storeDicFastFood.items():
             lbl1 = Button(r, text=v, width=24, height=5)
-            lbl1.grid(row=3, column=k, pady=10)
-        lordermore = Label(r, text="Gọi thêm")
-        lordermore.grid(row=4,column=1)
-        for k,v in storeDicOrderMore.items():
-            lbl1 = Button(r, text=v, width=24, height=5)
-            lbl1.grid(row=5, column=k, pady=10)
+        #     lbl1.grid(row=3, column=k, pady=10)
+            if k >= 5:
+                if k%4 == 0:
+                    lbl1.grid(row=k//4+len(storeDicFastFood)//4+3, column=4, pady=10)
+                    print(k//4+len(storeDicFastFood)//4+3)
+                else:
+                    lbl1.grid(row=k//4+len(storeDicFastFood)//4+4, column=k%4, pady=10)
+            else:
+                lbl1.grid(row=len(storeDicDrink)//4+2, column=k, pady=10)
+        
+        
+        # lordermore = Label(r, text="Gọi thêm")
+        # lordermore.grid(row=len(storeDicDrink)//4+1+len(storeDicFastFood)//4+1,column=1)
+        # for k,v in storeDicOrderMore.items():
+        #     lbl1 = Button(r, text=v, width=24, height=5)
+        #     # lbl1.grid(row=5, column=k, pady=10)
+        #     if k >= 5:
+        #         if k%4 == 0:
+        #             lbl1.grid(row=k//4+len(storeDicOrderMore)//4+1+len(storeDicDrink)//4+1, column=4, pady=10)
+        #             # print(k//4)
+        #         else:
+        #             lbl1.grid(row=k//4+len(storeDicOrderMore)//4+1+len(storeDicDrink)//4+1, column=k%4, pady=10)
+        #     else:
+        #         lbl1.grid(row=len(storeDicFastFood)//4+2+len(storeDicDrink)//4+2, column=k, pady=10)
+        # scrollbar.config(command=ldrink.yview)
     def bill(self, r):
         ldrink = Label(r, text="Đồ uống")
         ldrink.grid(row=0,column=1)
@@ -117,7 +152,7 @@ class Windows_Services(tk.Tk):
             ldrink.grid(row=k,column=1)
             # lbl1 = Button(r, text=v width=24, height=5)
             # lbl1.grid(row=1, column=k, pady=10)
-        print(self.total)
+        # print(self.total)
     
 
 
