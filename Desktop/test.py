@@ -44,7 +44,7 @@ ws.geometry("500x500")
 def open_new_window(test):
         print(test)
         app = Windows_Services()
-        app.title(f'Cửa sổ giao dị  ch bàn {test}')
+        app.title(f'Cửa sổ giao dịch bàn {test}')
         app.geometry("700x500")
 
 canvas = Canvas(ws, width=500, height=500, bg="#7698A6")
@@ -62,8 +62,6 @@ for i in range(a):
 
 f = Frame(ws, width=200, height=500, bg="#F23E2E")
 f.pack(side=RIGHT)
-
-
 
 
 
