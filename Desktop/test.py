@@ -65,7 +65,5 @@ f.pack(side=RIGHT)
 
 
 
-
-
 ws.resizable(False, False) # fixed size disable resize
 ws.mainloop()
