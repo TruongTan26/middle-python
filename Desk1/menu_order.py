@@ -1,59 +1,32 @@
-# import tkinter as tk
-# from db import *
-# import sys
-
-# def order_item(item_name, table_num):
-#     mydb = connect_db()
-#     mycursor = create_cursor(mydb)
-
-#     sql = "INSERT INTO tbl_item (table_number, item_name) VALUES (%s, %s)"
-#     val = (table_num, item_name)
-#     mycursor.execute(sql, val)
-#     mydb.commit()
-#     mydb.close()
-
-# def show_menu(table_num):
-#     mydb = connect_db()
-#     mycursor = create_cursor(mydb)
-
-#     mycursor.execute("SELECT item_name FROM tbl_item")
-#     menu_items = mycursor.fetchall()
-    
-#     root = tk.Tk()
-#     root.title(f"Menu - Bàn {table_num}")
-    
-#     for item in menu_items:
-#         item_button = tk.Button(root, text=item[0], command=lambda item_name=item[0]: order_item(item_name, table_num))
-#         item_button.pack()
-
-#     root.mainloop()
-
-# if __name__ == "__main__":
-#     if len(sys.argv) < 2:
-#         print("Vui lòng nhập số bàn.")
-#     else:
-#         table_number = int(sys.argv[1])
-#         show_menu(table_number)
-
 import tkinter as tk
 from tkinter import ttk
 from db import *
 import sys, datetime
 
+
 def order_item(item_name,item_price, table_num):
     mydb = connect_db()
     mycursor = create_cursor(mydb)
-
     current_time = datetime.datetime.now().strftime("%H:%M %d/%m/%Y")
-    mycursor.execute("INSERT INTO tbl_item (table_number, item_name,item_price, time) VALUES (%s, %s, %s, %s)", (table_num, item_name,item_price, current_time))
+
+    mycursor.execute("SELECT * FROM tbl_item WHERE table_number = %s AND item_name = %s", (table_num, item_name))
+    existing_item = mycursor.fetchone()
+
+    if existing_item:
+        # Nếu món ăn đã tồn tại, cập nhật số lượng bằng cách tăng giá trị hiện tại lên một đơn vị
+        new_quantity = existing_item[4] + 1  # Cột thứ tư trong database lưu số lượng
+        mycursor.execute("UPDATE tbl_item SET quantity = %s, time = %s WHERE table_number = %s AND item_name = %s", (new_quantity, current_time, table_num, item_name))
+    else:
+        # Nếu món ăn chưa tồn tại, thêm một bản ghi mới vào cơ sở dữ liệu với số lượng ban đầu là 1
+        mycursor.execute("INSERT INTO tbl_item (table_number, item_name, item_price, quantity, time) VALUES (%s, %s, %s, %s, %s)", (table_num, item_name, item_price, 1, current_time))
+
     mydb.commit()
     mydb.close()
 
 def select_menu_from_db():
-    # Thực hiện truy vấn để lấy dữ liệu từ bảng menu trong cơ sở dữ liệu
     mydb = connect_db()
     mycursor = create_cursor(mydb)
-
+    # Thực hiện truy vấn để lấy dữ liệu từ bảng menu trong cơ sở dữ liệu
     mycursor.execute("SELECT menu_name, menu_price FROM tbl_menu")
     menu_items = mycursor.fetchall()
 
@@ -61,22 +34,20 @@ def select_menu_from_db():
     return menu_items
 
 def select_chat_bot_from_db():
-    # Thực hiện truy vấn để lấy dữ liệu từ bảng chat_bot trong cơ sở dữ liệu
     mydb = connect_db()
     mycursor = create_cursor(mydb)
-
+    # Thực hiện truy vấn để lấy dữ liệu từ bảng chat_bot trong cơ sở dữ liệu
     mycursor.execute("SELECT id FROM bot_chat")
     chat_messages = mycursor.fetchall()
-
+ 
     mydb.close()
     return chat_messages
 
 def select_orders_from_db(tbnum):
-    # Thực hiện truy vấn để lấy dữ liệu từ bảng orders trong cơ sở dữ liệu
     mydb = connect_db()
     mycursor = create_cursor(mydb)
-
-    mycursor.execute(f"SELECT item_name, item_price FROM tbl_item WHERE table_number = {tbnum}")
+    # Thực hiện truy vấn để lấy dữ liệu từ bảng orders trong cơ sở dữ liệu
+    mycursor.execute("SELECT item_name, item_price, quantity, time FROM tbl_item WHERE table_number = %s",(tbnum,))
     orders_list = mycursor.fetchall()
 
     mydb.close()
@@ -96,6 +67,13 @@ def show_menu(table_num):
     tab_control.add(menu_tab, text='Menu')
     tab_control.add(chat_bot_tab, text='Chat Bot')
     tab_control.add(orders_tab, text='Đã Gọi')
+    
+    # Widgets trong tab Menu
+    label_menu = tk.Label(menu_tab, text="Đây là tab Menu")
+    label_menu.pack()
+
+    label_orders = tk.Label(orders_tab, text="Đây là orders_tab Đã Gọi")
+    label_orders.pack()
 
     menu_items = select_menu_from_db()
     chat_messages = select_chat_bot_from_db()
@@ -105,26 +83,16 @@ def show_menu(table_num):
         item_button = tk.Button(menu_tab, text=f"{item[0]} - {item[1]}", command=lambda item_name=item[0], item_price=item[1]: order_item(item_name,item_price, table_num))
         item_button.pack()
 
-    # Các công việc tương tự có thể được thực hiện cho các tab khác
 
-    # Tạo khung mới
-    orders_frame = ttk.Frame(tab_control)
+    tree = ttk.Treeview(orders_tab, columns=('Item Name', 'Item Price', 'Quantity', 'Time'), show='headings')
+    tree.heading('Item Name', text='Item Name')
+    tree.heading('Item Price', text='Item Price')
+    tree.heading('Quantity', text='Quantity')
+    tree.heading('Time', text='Time')
+    tree.pack(fill='both', expand=True)
 
-    # Tạo bảng
-    orders_table = ttk.Treeview(orders_frame)
-    orders_table['columns'] = ['Tên món ăn', 'Giá món ăn', 'Số lượng']
-    orders_table.column('#0', width=0, stretch=False)
-    orders_table.column('Tên món ăn', width=150)
-    orders_table.column('Giá món ăn', width=100)
-    orders_table.column('Số lượng', width=50)
-    orders_table.heading('#0', text='')
-    orders_table.heading('Tên món ăn', text='Tên món ăn')
-    orders_table.heading('Giá món ăn', text='Giá món ăn')
-    orders_table.heading('Số lượng', text='Số lượng')
-    for order in orders_list:
-        if order[0] == table_num:
-            orders_table.insert('', 'end', values=(order[1], order[2]))
-
+    for list in orders_list:
+        tree.insert('', 'end', values=list)
 
     tab_control.pack(expand=1, fill='both')
 
