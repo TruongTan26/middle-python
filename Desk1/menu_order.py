@@ -1,13 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
 from db import *
-import sys, datetime
+import sys, datetime, os
 
+current_time = datetime.datetime.now().strftime("%H:%M %d/%m/%Y")
 
 def order_item(item_name,item_price, table_num):
     mydb = connect_db()
     mycursor = create_cursor(mydb)
-    current_time = datetime.datetime.now().strftime("%H:%M %d/%m/%Y")
 
     mycursor.execute("SELECT * FROM tbl_item WHERE table_number = %s AND item_name = %s", (table_num, item_name))
     existing_item = mycursor.fetchone()
@@ -33,15 +33,8 @@ def select_menu_from_db():
     mydb.close()
     return menu_items
 
-def select_chat_bot_from_db():
-    mydb = connect_db()
-    mycursor = create_cursor(mydb)
-    # Thực hiện truy vấn để lấy dữ liệu từ bảng chat_bot trong cơ sở dữ liệu
-    mycursor.execute("SELECT id FROM bot_chat")
-    chat_messages = mycursor.fetchall()
- 
-    mydb.close()
-    return chat_messages
+def open_chat_db(table_number):
+    os.system('python chat_db.py {}'.format(table_number))
 
 def select_orders_from_db(tbnum):
     mydb = connect_db()
@@ -56,7 +49,7 @@ def select_orders_from_db(tbnum):
 def show_menu(table_num):
     root = tk.Tk()
     root.title(f"Menu - Bàn {table_num}")
-    root.geometry("700x500")
+    root.geometry("810x500")
 
     tab_control = ttk.Notebook(root)
 
@@ -76,13 +69,12 @@ def show_menu(table_num):
     label_orders.pack()
 
     menu_items = select_menu_from_db()
-    chat_messages = select_chat_bot_from_db()
+    # chat_messages = select_chat_bot_from_db()
     orders_list = select_orders_from_db(table_num)
 
     for item in menu_items:
         item_button = tk.Button(menu_tab, text=f"{item[0]} - {item[1]}", command=lambda item_name=item[0], item_price=item[1]: order_item(item_name,item_price, table_num))
         item_button.pack()
-
 
     tree = ttk.Treeview(orders_tab, columns=('Item Name', 'Item Price', 'Quantity', 'Time'), show='headings')
     tree.heading('Item Name', text='Item Name')
@@ -93,6 +85,26 @@ def show_menu(table_num):
 
     for list in orders_list:
         tree.insert('', 'end', values=list)
+
+    def thanh_toan():
+        print("Thanh toán")
+    payment_button = tk.Button(orders_tab, text="Thanh toán", command= thanh_toan)
+    payment_button.pack(side=tk.RIGHT, padx=10)
+
+    total_quantity = sum(item[2] for item in orders_list)  # Tính tổng cột Quantity
+    total_price = sum(item[2] * int(item[1]) for item in orders_list)  # Tính tổng cột Item Price (giá * số lượng)
+
+    # Hiển thị tổng trong giao diện
+    total_quantity_label = tk.Label(orders_tab, text=f'Total Quantity: {total_quantity}')
+    total_quantity_label.pack(side=tk.RIGHT, padx=120)
+
+    total_price_label = tk.Label(orders_tab, text=f'Total Price: {total_price}')
+    total_price_label.pack(side=tk.RIGHT, padx=10)
+
+    def open_chat_bot():
+        open_chat_db(table_num)
+    chat_button = tk.Button(chat_bot_tab, text="Chat bot", command=open_chat_bot)
+    chat_button.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     tab_control.pack(expand=1, fill='both')
 
