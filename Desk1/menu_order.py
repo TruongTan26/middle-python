@@ -58,7 +58,7 @@ def show_menu(table_num):
     orders_tab = ttk.Frame(tab_control)
 
     tab_control.add(menu_tab, text='Menu')
-    tab_control.add(chat_bot_tab, text='Chat Bot')
+    tab_control.add(chat_bot_tab, text='Chat')
     tab_control.add(orders_tab, text='Đã Gọi')
     
     # Widgets trong tab Menu
