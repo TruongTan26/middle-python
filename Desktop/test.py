@@ -1,69 +1,55 @@
-# import tkinter as tk       
-# import threading
-
-# class Application(tk.Frame):              
-#     def __init__(self, master=None):
-#         tk.Frame.__init__(self, master)   
-#         self.grid()                       
-#         self.createWidgets()
-
-#     def printHello(self):
-#         print("Hello")
-
-#     def createWidgets(self):
-#         self.quitButton = tk.Button(self, text='Quit',
-#             command=self.quit) # exits background (gui) thread
-#         self.quitButton.grid(row=1,column=0)    
-#         self.printButton = tk.Button(self, text='Print',command=lambda: self.printHello())         
-#         self.printButton.grid(row=1,column=1) 
-
-# def runtk():  # runs in background thread
-#     app = Application()                        
-#     app.master.title('Sample application')     
-#     app.mainloop()
-    
-# thd = threading.Thread(target=runtk)   # gui thread
-# # thd.daemon = True  # background thread will exit if main thread exits
-# thd.start()  # start tk loop
-
-# Python program to create a table
-  
-from tkinter import *
-from windows_services import *
-
-list = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-a = len(list)
-# print(a)
-length = 500//a 
-ws = Tk()
-ws.geometry("500x500")
-
-# def clicked(*args):
-#     print("test click")
-
-def open_new_window(test):
-        # print(test)
-        app = Windows_Services()
-        app.title(f'Cửa sổ giao dịch bàn {test}')
-        app.geometry("700x500")
-
-canvas = Canvas(ws, width=500, height=500, bg="#7698A6")
-canvas.pack(side=RIGHT)
-count = 0 
-for i in range(a):
-    y = i * length
-    for j in range(a):
-        tablename = 'D'+str(count)
-        x = j * length
-        canvas.create_rectangle(x, y, x+length, y+length, fill="#D97E4A", tags=tablename)
-        canvas.create_text(x+length-50, y+length-50, text=f'D{count}', fill="white")
-        canvas.tag_bind(tablename,"<Button-1>",lambda _, tablename=tablename: open_new_window(tablename))
-        count+=1
-
-f = Frame(ws, width=200, height=500, bg="#F23E2E")
-f.pack(side=RIGHT)
-
-
-
-ws.resizable(False, False) # fixed size disable resize
-ws.mainloop()
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter.constants import *
+ 
+class VerticalScrolledFrame(ttk.Frame):
+    def __init__(self, parent, *args, **kw):
+        ttk.Frame.__init__(self, parent, *args, **kw)
+ 
+        # Create a canvas object and a vertical scrollbar for scrolling it.
+        vscrollbar = ttk.Scrollbar(self, orient=VERTICAL)
+        vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
+        self.canvas = tk.Canvas(self, bd=0, highlightthickness=0, 
+                                width = 200, height = 300,
+                                yscrollcommand=vscrollbar.set)
+        self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        vscrollbar.config(command = self.canvas.yview)
+ 
+        # Reset the view
+        self.canvas.xview_moveto(0)
+        self.canvas.yview_moveto(0)
+ 
+        # Create a frame inside the canvas which will be scrolled with it.
+        self.interior = ttk.Frame(self.canvas)
+        self.interior.bind('<Configure>', self._configure_interior)
+        self.canvas.bind('<Configure>', self._configure_canvas)
+        self.interior_id = self.canvas.create_window(0, 0, window=self.interior, anchor=NW)
+ 
+ 
+    def _configure_interior(self, event):
+        # Update the scrollbars to match the size of the inner frame.
+        size = (self.interior.winfo_reqwidth(), self.interior.winfo_reqheight())
+        self.canvas.config(scrollregion=(0, 0, size[0], size[1]))
+        if self.interior.winfo_reqwidth() != self.canvas.winfo_width():
+            # Update the canvas's width to fit the inner frame.
+            self.canvas.config(width = self.interior.winfo_reqwidth())
+         
+    def _configure_canvas(self, event):
+        if self.interior.winfo_reqwidth() != self.canvas.winfo_width():
+            # Update the inner frame's width to fill the canvas.
+            self.canvas.itemconfigure(self.interior_id, width=self.canvas.winfo_width())
+         
+ 
+class Window():
+    def __init__(self, master, *args, **kwargs):
+        self.frame = VerticalScrolledFrame(master)
+        self.frame.pack(expand = True, fill = tk.BOTH)
+        self.label = ttk.Label(master, text="Shrink the window to activate the scrollbar.")
+        self.label.pack()
+ 
+        for i in range(20):
+            ttk.Button(self.frame.interior, text=f"Button {i}").pack(padx=10, pady=5)
+ 
+root = tk.Tk()
+window = Window(root)
+root.mainloop()
