@@ -1,9 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 from db import *
-import sys, datetime, os
+import sys, datetime, os,subprocess
 
 current_time = datetime.datetime.now().strftime("%H:%M %d/%m/%Y")
+month=datetime.datetime.now().month
+day=datetime.datetime.now().day
 
 def order_item(item_name,item_price, table_num):
     mydb = connect_db()
@@ -46,6 +48,28 @@ def select_orders_from_db(tbnum):
     mydb.close()
     return orders_list
 
+def thanh_toans(orders_list, table_num,total_price):
+    mydb = connect_db()
+    mycursor = create_cursor(mydb)
+
+    date_to = datetime.datetime.now()
+    mycursor.execute("INSERT INTO bill (bill_table, bill_date, total, day, month) VALUES (%s, %s, %s, %s, %s)", (table_num, date_to, total_price, day, month))
+
+    lay_id = mycursor.execute("SELECT bill_id FROM bill WHERE bill_date = %s",(date_to,))
+    for order in orders_list:
+        menu_name = order[0]
+        menu_price = order[1]
+        quantity = order[2]
+
+        # Thêm đơn hàng đã gọi vào cơ sở dữ liệu bill_detail
+        mycursor.execute("INSERT INTO bill_detail (bill_id, menu_name, menu_price, quantity) VALUES (%s, %s, %s, %s)", (lay_id, menu_name, menu_price, quantity))
+
+    # Xóa các đơn hàng đã gọi từ tbl_item
+    # mycursor.execute("DELETE FROM tbl_item WHERE table_number = %s", (table_num,))
+
+    mydb.commit()
+    mydb.close()
+
 def show_menu(table_num):
     root = tk.Tk()
     root.title(f"Menu - Bàn {table_num}")
@@ -86,13 +110,37 @@ def show_menu(table_num):
     for list in orders_list:
         tree.insert('', 'end', values=list)
 
-    def thanh_toan():
-        print("Thanh toán")
-    payment_button = tk.Button(orders_tab, text="Thanh toán", command= thanh_toan)
-    payment_button.pack(side=tk.RIGHT, padx=10)
-
     total_quantity = sum(item[2] for item in orders_list)  # Tính tổng cột Quantity
     total_price = sum(item[2] * int(item[1]) for item in orders_list)  # Tính tổng cột Item Price (giá * số lượng)
+
+    def thanh_toan():
+        # print("Thanh toán")
+        mydb = connect_db()
+        mycursor = create_cursor(mydb)
+
+        date_to = datetime.datetime.now()
+        mycursor.execute("INSERT INTO bill (bill_table, bill_date, total, day, month) VALUES (%s, %s, %s, %s, %s)", (table_num, date_to, total_price, day, month))
+
+        existing_item = mycursor.execute("SELECT bill_id FROM bill WHERE bill_date = %s",(date_to,))
+        lay_id = existing_item.fetchone()
+
+        print(lay_id)
+        # for order in orders_list:
+        #     menu_name = order[0]
+        #     menu_price = order[1]
+        #     quantity = order[2]
+
+        #     # Thêm đơn hàng đã gọi vào cơ sở dữ liệu bill_detail
+        #     mycursor.execute("INSERT INTO bill_detail (bill_id, menu_name, menu_price, quantity) VALUES (%s, %s, %s, %s)", (lay_id, menu_name, menu_price, quantity))
+
+        # Xóa các đơn hàng đã gọi từ tbl_item
+        # mycursor.execute("DELETE FROM tbl_item WHERE table_number = %s", (table_num,))
+
+        mydb.commit()
+        mydb.close()
+
+    payment_button = tk.Button(orders_tab, text="Thanh toán", command= thanh_toan)
+    payment_button.pack(side=tk.RIGHT, padx=10)
 
     # Hiển thị tổng trong giao diện
     total_quantity_label = tk.Label(orders_tab, text=f'Total Quantity: {total_quantity}')
@@ -102,9 +150,14 @@ def show_menu(table_num):
     total_price_label.pack(side=tk.RIGHT, padx=10)
 
     def open_chat_bot():
-        open_chat_db(table_num)
+        subprocess.Popen(["python", "chat_db.py", str(table_number)])
+    def open_chat_live():
+        subprocess.Popen(["python", "client.py", str(table_number)])
+        
     chat_button = tk.Button(chat_bot_tab, text="Chat bot", command=open_chat_bot)
-    chat_button.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+    chat_buttons = tk.Button(chat_bot_tab, text="Chat Live", command=open_chat_live)
+    chat_button.place(relx=0.5, rely=0.5, anchor=tk.S)
+    chat_buttons.place(relx=0.5, rely=0.5, anchor=tk.W)
 
     tab_control.pack(expand=1, fill='both')
 

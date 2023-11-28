@@ -3,6 +3,7 @@ import subprocess
 
 def open_menu(table_number):
     subprocess.Popen(["python", "menu_order.py", str(table_number)]) # sử dụng Popen thì mở đc nhiều tab, còn call thì chỉ 1 thôi
+    # subprocess.Popen(["python", "python server.py"])
 
 root = tk.Tk()
 root.title("Quản lý nhà hàng")
