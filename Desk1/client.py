@@ -5,6 +5,8 @@ import threading
 def send_message():
     message = entry.get()
     client_socket.sendall(message.encode('utf-8'))
+    # client_socket.sendto(message.encode('utf-8'),("127.0.0.1",5555))
+    chat_box.insert(tk.END, f'Khách hàng: {message} \n')
 
 # Khởi tạo socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,7 +31,7 @@ def receive():
         try:
             data = client_socket.recv(1024)
             if data:
-                chat_box.insert(tk.END, data.decode('utf-8') + '\n')
+                chat_box.insert(tk.END, f'Nhân viên: {data.decode("utf-8")} \n')
         except:
             break
 

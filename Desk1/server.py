@@ -31,7 +31,7 @@ def send_message_to_client(client_socket, message):
 def handle_client(client_socket, client_address):
     global clients, client_tabs, unread_messages
 
-    client_name = f"Client {len(clients) + 1}"
+    client_name = f"Bàn {len(clients) + 1}"
     client_tab = tk.Frame(tabs)
     client_tabs[client_socket] = client_tab
     unread_messages[client_socket] = 0
@@ -58,18 +58,19 @@ def handle_client(client_socket, client_address):
                 break
 
             # Hiển thị tin nhắn trên tab của client
-            chat_text.insert(tk.END, data.decode('utf-8') + '\n')
+            chat_text.insert(tk.END, f'Khách hàng: {data.decode("utf-8")} \n')
             unread_messages[client_socket] += 1
 
             # Cập nhật số tin nhắn chưa đọc trên tab
             tabs.tab(client_tab, text=f"{client_name} ({unread_messages[client_socket]})")
 
-            # Gửi tin nhắn tới các client khác
-            for client in clients:
-                if client != client_socket:
-                    send_message_to_client(client, data.decode('utf-8'))
+            # # Gửi tin nhắn tới các client khác
+            # for client in clients:
+            #     if client == client_socket: # if client != client_socket:
+            #         send_message_to_client(client, f'{data.decode("utf-8")}_rfs')
         except:
             break
+        
 
     client_socket.close()
 
