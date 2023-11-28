@@ -48,28 +48,6 @@ def select_orders_from_db(tbnum):
     mydb.close()
     return orders_list
 
-def thanh_toans(orders_list, table_num,total_price):
-    mydb = connect_db()
-    mycursor = create_cursor(mydb)
-
-    date_to = datetime.datetime.now()
-    mycursor.execute("INSERT INTO bill (bill_table, bill_date, total, day, month) VALUES (%s, %s, %s, %s, %s)", (table_num, date_to, total_price, day, month))
-
-    lay_id = mycursor.execute("SELECT bill_id FROM bill WHERE bill_date = %s",(date_to,))
-    for order in orders_list:
-        menu_name = order[0]
-        menu_price = order[1]
-        quantity = order[2]
-
-        # Thêm đơn hàng đã gọi vào cơ sở dữ liệu bill_detail
-        mycursor.execute("INSERT INTO bill_detail (bill_id, menu_name, menu_price, quantity) VALUES (%s, %s, %s, %s)", (lay_id, menu_name, menu_price, quantity))
-
-    # Xóa các đơn hàng đã gọi từ tbl_item
-    # mycursor.execute("DELETE FROM tbl_item WHERE table_number = %s", (table_num,))
-
-    mydb.commit()
-    mydb.close()
-
 def show_menu(table_num):
     root = tk.Tk()
     root.title(f"Menu - Bàn {table_num}")
@@ -121,20 +99,20 @@ def show_menu(table_num):
         date_to = datetime.datetime.now()
         mycursor.execute("INSERT INTO bill (bill_table, bill_date, total, day, month) VALUES (%s, %s, %s, %s, %s)", (table_num, date_to, total_price, day, month))
 
-        existing_item = mycursor.execute("SELECT bill_id FROM bill WHERE bill_date = %s",(date_to,))
-        lay_id = existing_item.fetchone()
-
+        mycursor.execute("SELECT bill_id FROM bill WHERE bill_date = %s",(date_to,))
+        lay_id = mycursor.fetchone()[0]
         print(lay_id)
-        # for order in orders_list:
-        #     menu_name = order[0]
-        #     menu_price = order[1]
-        #     quantity = order[2]
 
-        #     # Thêm đơn hàng đã gọi vào cơ sở dữ liệu bill_detail
-        #     mycursor.execute("INSERT INTO bill_detail (bill_id, menu_name, menu_price, quantity) VALUES (%s, %s, %s, %s)", (lay_id, menu_name, menu_price, quantity))
+        for order in orders_list:
+            menu_name = order[0]
+            menu_price = order[1]
+            quantity = order[2]
+
+            # Thêm đơn hàng đã gọi vào cơ sở dữ liệu bill_detail
+            mycursor.execute("INSERT INTO bill_detail (bill_id, menu_name, menu_price, quantity, total, month) VALUES (%s, %s, %s, %s, %s, %s)", (lay_id, menu_name, menu_price, quantity, int(menu_price)*int(quantity), month))
 
         # Xóa các đơn hàng đã gọi từ tbl_item
-        # mycursor.execute("DELETE FROM tbl_item WHERE table_number = %s", (table_num,))
+        mycursor.execute("DELETE FROM tbl_item WHERE table_number = %s", (table_num,))
 
         mydb.commit()
         mydb.close()
@@ -153,7 +131,7 @@ def show_menu(table_num):
         subprocess.Popen(["python", "chat_db.py", str(table_number)])
     def open_chat_live():
         subprocess.Popen(["python", "client.py", str(table_number)])
-        
+
     chat_button = tk.Button(chat_bot_tab, text="Chat bot", command=open_chat_bot)
     chat_buttons = tk.Button(chat_bot_tab, text="Chat Live", command=open_chat_live)
     chat_button.place(relx=0.5, rely=0.5, anchor=tk.S)
